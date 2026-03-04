@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import org.guanzon.appdriver.base.GRiderCAS;
 import org.guanzon.appdriver.base.MiscUtil;
 import org.guanzon.appdriver.base.SQLUtil;
+import org.guanzon.appdriver.constant.Logical;
+import org.guanzon.appdriver.constant.RecordStatus;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -85,8 +87,8 @@ public class DisPendingBills implements iSystemMonitor {
                 + " , '- ', b.nDueDayxx) sDisplayNme" 
                 + " , 'Payment Requests - New' sToolTipx" 
                 + " FROM Recurring_Expense_Payment_Monitor a "
-                + " LEFT JOIN Recurring_Expense_Schedule b ON a.sRecurrNo = b.sRecurrNo AND b.cRecdStat = '1'  "
-                + " LEFT JOIN Recurring_Expense c ON c.sRecurrID = b.sRecurrID AND c.cRecdStat = '1'           "
+                + " INNER JOIN Recurring_Expense_Schedule b ON a.sRecurrNo = b.sRecurrNo AND b.cRecdStat = " + SQLUtil.toSQL(RecordStatus.ACTIVE)
+                + " LEFT JOIN Recurring_Expense c ON c.sRecurrID = b.sRecurrID AND c.cRecdStat = " + SQLUtil.toSQL(RecordStatus.ACTIVE)
                 + " LEFT JOIN Payee d ON d.sPayeeIDx = b.sPayeeIDx         "
                 + " LEFT JOIN Particular e ON e.sPrtclrID = c.sPrtclrID    "
                 + " LEFT JOIN Client_Master f ON f.sClientID = b.sEmployID "
@@ -95,9 +97,9 @@ public class DisPendingBills implements iSystemMonitor {
          //she ->Status to be change nalang after finalization
         
         if(poDriver.isMainOffice()){
-            lsSQL = MiscUtil.addCondition(lsSQL, " (sBatchNox IS NULL OR TRIM(sBatchNox) = '') AND b.cAccntble != " + SQLUtil.toSQL("1")); //Except Branch
+            lsSQL = MiscUtil.addCondition(lsSQL, " (a.sBatchNox IS NULL OR TRIM(a.sBatchNox) = '') AND b.cExcluded = " + SQLUtil.toSQL(Logical.NO) + " AND b.cAccntble != " + SQLUtil.toSQL(Logical.YES)); //Except Branch
         } else {
-            lsSQL = MiscUtil.addCondition(lsSQL, " (sBatchNox IS NULL OR TRIM(sBatchNox) = '') AND b.cAccntble = " + SQLUtil.toSQL("1") + " AND b.sBranchCd = "  + SQLUtil.toSQL(poDriver.getBranchCode())); //For Specific Branch Only
+            lsSQL = MiscUtil.addCondition(lsSQL, " (a.sBatchNox IS NULL OR TRIM(a.sBatchNox) = '') AND b.cExcluded = " + SQLUtil.toSQL(Logical.NO) + "AND b.sBranchCd = "  + SQLUtil.toSQL(poDriver.getBranchCode())); //For Specific Branch Only
         }
         
         String lsFilterAll = "";
@@ -105,7 +107,7 @@ public class DisPendingBills implements iSystemMonitor {
      
 //        set filter by industry
         lsFilter = "";
-        if (pasIndstCdx != null) {
+        if (pasIndstCdx != null) { //Never pang na lagyan ito pasIndstCdx ng value; as per sir maynard kasi ni as is palang muna yung pag filter dapat mag filter pa sa lahat ng industry;
             for (String lsValue : pasIndstCdx) {
                 lsFilter += ", " + SQLUtil.toSQL(lsValue);
             }
