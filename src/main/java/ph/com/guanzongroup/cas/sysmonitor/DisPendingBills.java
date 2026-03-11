@@ -120,7 +120,7 @@ public class DisPendingBills implements iSystemMonitor {
             lsSQL += lsFilterAll;
         }
         
-        lsSQL = lsSQL + " GROUP BY b.sPayeeIDx, b.sBranchCd, c.sPrtclrID, b.nDueDayxx ";
+        lsSQL = lsSQL + " GROUP BY b.sPayeeIDx, b.sBranchCd, c.sPrtclrID, a.nBillMnth, b.nDueDayxx ";
         
         try {
 //            System.out.println("Monitoring Query is = " + lsSQL);
