@@ -64,7 +64,7 @@ public class UnPaidDeliveryAcceptance implements iSystemMonitor {
         String lsSQL;
         JSONObject oRes = new JSONObject();
 
-//        pasBranchCD = new String[]{poDriver.getBranchCode()};
+        pasBranchCD = new String[]{poDriver.getBranchCode()};
         lsSQL = "SELECT"
                 + "  a.sTransNox"
                 + ", a.dTransact"
