@@ -64,6 +64,14 @@ public class DisPendingBills implements iSystemMonitor {
     public JSONObject processMonitor() {
         String lsSQL;
         JSONObject oRes = new JSONObject();
+        
+        //add validation - sir maynard 05-29-2026 ; at this time for main office only - Arsiela 05-29-2026 03:50 PM
+        if (!poDriver.getBranchCode().equalsIgnoreCase("GCO1")) {
+            oRes.put("result", "Success");
+            return oRes;
+
+        }
+        
         lsSQL = " SELECT        "
                 + "   a.sTransNox "
                 + " , a.sBatchNox "
