@@ -115,7 +115,7 @@ public class SystemMonitorMenu {
             lsSQL += lsFilterAll;
         }
         try {
-//            System.out.println("System Monitor Menu Query is = " + lsSQL);
+            System.out.println("System Monitor Menu Query is = " + lsSQL);
             prsMonitoring = poDriver.executeQuery(lsSQL);
 
             JSONArray loResultJSONArray = new JSONArray();

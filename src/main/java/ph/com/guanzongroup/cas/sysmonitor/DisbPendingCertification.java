@@ -19,15 +19,16 @@ import org.json.simple.JSONObject;
  * @author Administrator
  */
 public class DisbPendingCertification implements iSystemMonitor {
+
     private String psMonitorName = "Pending Certification";
     private GRiderCAS poDriver;
     private String[] pasBranchCD;
     private String[] pasCompnyID;
     private String[] pasIndstCdx;
     private String[] pasCategrCd;
-    
+
     JSONArray poJAData = null;
-    
+
     @Override
     public void setDriver(GRiderCAS driver) {
         poDriver = driver;
@@ -62,23 +63,29 @@ public class DisbPendingCertification implements iSystemMonitor {
     public JSONObject processMonitor() {
         String lsSQL;
         JSONObject oRes = new JSONObject();
-        
-        lsSQL = "SELECT" + 
-                       "  a.sTransNox" + 
-                       ", a.dTransact" + 
-                       ", c.sPayeeNme" + 
-                       ", b.sBranchNm" + 
-                       ", d.sCompnyNm" + 
-                       ", a.sIndstCdx" + 
-                       ", a.cTranStat" +
-                       ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme" +
-                       ", CONCAT(b.`sBranchNm`, ' - #',a.`sVouchrNo`) sToolTipx" +
-               " FROM Disbursement_Master a" +
-                    " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD" +
-                    " LEFT JOIN Payee c ON a.sPayeeIDx = c.sPayeeIDx" +
-                    " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID" +
-               " WHERE a.cTranStat IN ('1')" ;
-        
+
+        //add validation 
+        if (!poDriver.getBranchCode().equalsIgnoreCase("GCO1")) {
+            oRes.put("result", "Success");
+            return oRes;
+
+        }
+        lsSQL = "SELECT"
+                + "  a.sTransNox"
+                + ", a.dTransact"
+                + ", c.sPayeeNme"
+                + ", b.sBranchNm"
+                + ", d.sCompnyNm"
+                + ", a.sIndstCdx"
+                + ", a.cTranStat"
+                + ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme"
+                + ", CONCAT(b.`sBranchNm`, ' - #',a.`sVouchrNo`) sToolTipx"
+                + " FROM Disbursement_Master a"
+                + " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD"
+                + " LEFT JOIN Payee c ON a.sPayeeIDx = c.sPayeeIDx"
+                + " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID"
+                + " WHERE a.cTranStat IN ('1')";
+
         //she ->Status to be change nalang after finalization
         String lsFilterAll = "";
         String lsFilter;
@@ -129,19 +136,19 @@ public class DisbPendingCertification implements iSystemMonitor {
         if (!lsFilterAll.isEmpty()) {
             lsSQL += lsFilterAll;
         }
-        
+
         try {
 //            System.out.println("Monitoring Query is = " + lsSQL);
             ResultSet loRS = poDriver.executeQuery(lsSQL);
-            
+
             poJAData = MiscUtil.RS2JSON(loRS);
-            
+
         } catch (SQLException ex) {
             oRes.put("result", "Failed");
             oRes.put("message", MiscUtil.getException(ex));
             return oRes;
         }
-        
+
         oRes.put("result", "Success");
         return oRes;
     }
@@ -150,5 +157,5 @@ public class DisbPendingCertification implements iSystemMonitor {
     public JSONArray getRecords() {
         return poJAData;
     }
-    
+
 }
