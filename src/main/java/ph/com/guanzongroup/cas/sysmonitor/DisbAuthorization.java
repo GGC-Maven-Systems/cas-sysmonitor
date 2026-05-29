@@ -63,22 +63,28 @@ public class DisbAuthorization implements iSystemMonitor {
     public JSONObject processMonitor() {
         String lsSQL;
         JSONObject oRes = new JSONObject();
+        
+        //add validation 
+        if (!poDriver.getBranchCode().equalsIgnoreCase("GCO1")) {
+            oRes.put("result", "Success");
+            return oRes;
 
-        lsSQL = "SELECT" + 
-                       "  a.sTransNox" + 
-                       ", a.dTransact" + 
-                       ", c.sPayeeNme" + 
-                       ", b.sBranchNm" + 
-                       ", d.sCompnyNm" + 
-                       ", a.sIndstCdx" + 
-                       ", a.cTranStat" +
-                       ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme" +
-                       ", CONCAT(b.`sBranchNm`, ' - #',a.`sVouchrNo`) sToolTipx" +
-               " FROM Disbursement_Master a" +
-                    " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD" +
-                    " LEFT JOIN Payee c ON a.sPayeeIDx = c.sPayeeIDx" +
-                    " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID" +
-               " WHERE a.cTranStat IN ('2')" ;
+        }
+        lsSQL = "SELECT"
+                + "  a.sTransNox"
+                + ", a.dTransact"
+                + ", c.sPayeeNme"
+                + ", b.sBranchNm"
+                + ", d.sCompnyNm"
+                + ", a.sIndstCdx"
+                + ", a.cTranStat"
+                + ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme"
+                + ", CONCAT(b.`sBranchNm`, ' - #',a.`sVouchrNo`) sToolTipx"
+                + " FROM Disbursement_Master a"
+                + " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD"
+                + " LEFT JOIN Payee c ON a.sPayeeIDx = c.sPayeeIDx"
+                + " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID"
+                + " WHERE a.cTranStat IN ('2')";
         //she ->Status to be change nalang after finalization
         //status: 3 = cancelled, 4 = void
         String lsFilterAll = "";
