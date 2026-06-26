@@ -104,7 +104,7 @@ public class DisPendingBills implements iSystemMonitor {
                 + " LEFT JOIN Client_Master f ON f.sClientID = b.sEmployID "
                 + " LEFT JOIN Industry g ON g.sIndstCdx = c.sIndstCdx      "
                 + " LEFT JOIN Branch h ON h.sBranchCd = b.sBranchCd       " 
-                + " LEFT JOIN Company i ON i.sCompnyID = h.sCompnyID       " ;
+                + " LEFT JOIN Company i ON i.sCompnyID = b.sCompnyID       " ;
          //she ->Status to be change nalang after finalization
         
         lsSQL = MiscUtil.addCondition(lsSQL, " (a.sBatchNox IS NULL OR TRIM(a.sBatchNox) = '') AND b.cExcluded = " + SQLUtil.toSQL(Logical.NO));
@@ -137,7 +137,7 @@ public class DisPendingBills implements iSystemMonitor {
             }
         }
         if (!lsFilter.isEmpty()) {
-            lsFilterAll += " AND h.sCompnyID IN(" + lsFilter.substring(2) + ")";
+            lsFilterAll += " AND b.sCompnyID IN(" + lsFilter.substring(2) + ")";
         }
 
         if (!lsFilterAll.isEmpty()) {
@@ -145,7 +145,7 @@ public class DisPendingBills implements iSystemMonitor {
         }
         
 //        lsSQL = lsSQL + " GROUP BY b.sPayeeIDx, b.sBranchCd, c.sPrtclrID, a.nBillMnth, b.nDueDayxx ";
-        lsSQL = lsSQL + " GROUP BY h.sCompnyID, b.sPayeeIDx, b.cAccntble, b.nBillDayx "; //Changed group by according to ma'am she - Arsiela 05-28-206
+        lsSQL = lsSQL + " GROUP BY b.sCompnyID, b.sPayeeIDx, b.cAccntble, b.nBillDayx "; //Changed group by according to ma'am she - Arsiela 05-28-206
         
         try {
 //            System.out.println("Monitoring Query is = " + lsSQL);
