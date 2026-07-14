@@ -87,12 +87,12 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
                 + " AND sTransNox NOT IN(SELECT sOrderNox FROM PO_Receiving_Master a, "
                 + "`PO_Receiving_Detail` b"
                 + " WHERE a.`sTransNox` = b.`sTransNox` AND b.sOrderNox != '' AND cTranStat = '1')"
-                + " AND (b.nQuantity - b.nCancelld) > b.nReceived "
                 + " AND NOT EXISTS ( SELECT 1 FROM PO_Detail pd"
                 + "                  JOIN PO_Cancellation_Detail cd ON cd.sStockIDx = pd.sStockIDx"
                 + "                  JOIN PO_Cancellation_Master cm ON cm.`sTransNox` = cd.`sTransNox`"
                 + "                       WHERE pd.sTransNox = a.sTransNox"
-                + "                          AND cm.cTranStat = '1')";
+                + "                          AND cm.cTranStat = '1'" +
+"                +                            AND (pd.nQuantity - pd.nCancelld) > pd.nReceived )";
 
         String lsFilterAll = "";
         String lsFilter;
