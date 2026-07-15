@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package ph.com.guanzongroup.cas.sysmonitor;
 
 import java.sql.ResultSet;
@@ -18,9 +15,9 @@ import org.json.simple.JSONObject;
  *
  * @author Administrator
  */
-public class UndeliveredPurchaseOrder implements iSystemMonitor {
+public class UnPaidPRF implements iSystemMonitor {
 
-    private String psMonitorName = "Undelivered Purchase Order";
+    private String psMonitorName = "UnPaid PRF";
     private GRiderCAS poDriver;
     private String[] pasBranchCD;
     private String[] pasCompnyID;
@@ -61,38 +58,27 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
 
     @Override
     public JSONObject processMonitor() {
-
-        pasBranchCD = new String[]{poDriver.getBranchCode()};
         String lsSQL;
         JSONObject oRes = new JSONObject();
 
+        pasBranchCD = new String[]{poDriver.getBranchCode()};
         lsSQL = "SELECT"
                 + "  a.sTransNox"
                 + ", a.dTransact"
-                + ", c.sCompnyNm"
+                + ", c.sPayeeNme"
                 + ", b.sBranchNm"
                 + ", d.sCompnyNm"
                 + ", a.sIndstCdx"
-                + ", a.sCategrCd"
-                + ", a.cPreOwned"
                 + ", a.cProcessd"
+                + ", a.cTranStat"
                 + ", CONCAT(a.sTransNox ,' - ',a.dTransact) sDisplayNme"
-                + ", CONCAT(b.`sBranchNm`, ' - #',a.`sReferNox`) sToolTipx"
-                + " FROM PO_Master a"
-                + " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD"
-                + " LEFT JOIN Client_Master c ON a.sSupplier = c.sClientID"
-                + " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID"
-                + " WHERE a.cTranStat IN ('5')"
-                + " AND a.cProcessd IN ('0', '1') "
-                + " AND sTransNox NOT IN(SELECT sOrderNox FROM PO_Receiving_Master a, "
-                + "`PO_Receiving_Detail` b"
-                + " WHERE a.`sTransNox` = b.`sTransNox` AND b.sOrderNox != '' AND cTranStat = '1')"
-                + " AND NOT EXISTS ( SELECT 1 FROM PO_Detail pd"
-                + "                  JOIN PO_Cancellation_Detail cd ON cd.sStockIDx = pd.sStockIDx"
-                + "                  JOIN PO_Cancellation_Master cm ON cm.`sTransNox` = cd.`sTransNox`"
-                + "                       WHERE pd.sTransNox = a.sTransNox"
-                + "                          AND cm.cTranStat = '1'"
-                + "                             AND (pd.nQuantity - pd.nCancelld) <= pd.nReceived )";
+                + ", CONCAT(b.`sBranchNm`, ' - #',a.`sTransNox`) sToolTipx"
+                + " FROM Payment_Request_Master a"
+                    + " LEFT JOIN Branch b ON a.sBranchCd = b.sBranchCD"
+                    + " LEFT JOIN Payee c ON a.sPayeeIDx = c.sPayeeIDx"
+                    + " LEFT JOIN Company d ON a.sCompnyID = d.sCompnyID"
+                + " WHERE a.cTranStat IN ('1')"
+                + " AND a.nNetTotal > a.nAmtPaidX ";
 
         String lsFilterAll = "";
         String lsFilter;
@@ -107,18 +93,7 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
         if (!lsFilter.isEmpty()) {
             lsFilterAll += " AND a.sIndstCdx IN(" + lsFilter.substring(2) + ")";
         }
-
-        //set filter by category
-        lsFilter = "";
-        if (pasCategrCd != null) {
-            for (String lsValue : pasCategrCd) {
-                lsFilter += ", " + SQLUtil.toSQL(lsValue);
-            }
-        }
-        if (!lsFilter.isEmpty()) {
-            lsFilterAll += " AND a.sCategrCd IN(" + lsFilter.substring(2) + ")";
-        }
-
+ 
         //set filter by company
         lsFilter = "";
         if (pasCompnyID != null) {
@@ -147,7 +122,7 @@ public class UndeliveredPurchaseOrder implements iSystemMonitor {
 
         try {
 //            System.out.println("Monitoring Query is = " + lsSQL);
-            lsSQL = lsSQL + " GROUP BY a.sTransNox ORDER BY a.dTransact ASC ";
+            lsSQL = lsSQL + " ORDER BY a.dTransact ASC ";
             ResultSet loRS = poDriver.executeQuery(lsSQL);
 
             poJAData = MiscUtil.RS2JSON(loRS);
